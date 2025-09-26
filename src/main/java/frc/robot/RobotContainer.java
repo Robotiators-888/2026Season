@@ -357,8 +357,8 @@ public class RobotContainer {
                 Driver1.leftStick().onTrue(new InstantCommand(() -> drivetrain.zeroHeading())); // TODO:
                                                                                                 // Change
                 Driver1.y().whileTrue(new CMD_PathfindAlgaeAlign(drivetrain, photonVision));
-                Driver1.a().onTrue(new InstantCommand(
-                                () -> pivot.changeSetpoint(PivotConstants.kL2Setpoint)));
+                //Driver1.a().onTrue(new InstantCommand(
+                //                () -> pivot.changeSetpoint(PivotConstants.kL2Setpoint)));
 
                 Driver1.x().whileTrue(new CMD_PathfindReefAlign(drivetrain, photonVision, true,
                                 () -> targetId, () -> listIndex));
