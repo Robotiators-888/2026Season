@@ -28,12 +28,7 @@
       "linkedName": "Bottom Pickup(Right)"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.4224525043177903,
-      "rotationDegrees": 69.24028651169145
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [
     {
       "name": "Constraints Zone",
@@ -49,7 +44,18 @@
       }
     }
   ],
-  "pointTowardsZones": [],
+  "pointTowardsZones": [
+    {
+      "fieldPosition": {
+        "x": 4.0,
+        "y": 3.0
+      },
+      "rotationOffset": 0.0,
+      "minWaypointRelativePos": 0.5179999999999967,
+      "maxWaypointRelativePos": 0.6364000000000024,
+      "name": "Point Towards Zone"
+    }
+  ],
   "eventMarkers": [
     {
       "name": "ResetReachedTarget",

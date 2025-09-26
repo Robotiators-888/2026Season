@@ -50,7 +50,12 @@
       "name": "ReachedTarget",
       "waypointRelativePos": 0.44279999999999753,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ReachedTarget"
+        }
+      }
     }
   ],
   "globalConstraints": {

@@ -17,7 +17,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "scoreL4"
+                  "name": "scoreL4(conditional)"
                 }
               }
             ]
@@ -31,12 +31,6 @@
                 "type": "path",
                 "data": {
                   "pathName": "H Backup"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "stow"
                 }
               }
             ]

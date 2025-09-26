@@ -28,16 +28,11 @@
       "linkedName": "E ReefScore"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.4998272884283281,
-      "rotationDegrees": 133.66021066487525
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.8972000000000012,
+      "minWaypointRelativePos": 0.8484848484848486,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
         "maxVelocity": 4.0,
@@ -49,11 +44,22 @@
       }
     }
   ],
-  "pointTowardsZones": [],
+  "pointTowardsZones": [
+    {
+      "fieldPosition": {
+        "x": 5.0,
+        "y": 3.0
+      },
+      "rotationOffset": 0.0,
+      "minWaypointRelativePos": 0.3484000000000027,
+      "maxWaypointRelativePos": 0.5644000000000037,
+      "name": "Point Towards Zone"
+    }
+  ],
   "eventMarkers": [
     {
       "name": "ReachedTarget",
-      "waypointRelativePos": 0.20919999999999764,
+      "waypointRelativePos": 0.310473152578412,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -65,7 +71,7 @@
   ],
   "globalConstraints": {
     "maxVelocity": 4.92,
-    "maxAcceleration": 4.5,
+    "maxAcceleration": 4.0,
     "maxAngularVelocity": 180.0,
     "maxAngularAcceleration": 180.0,
     "nominalVoltage": 12.0,

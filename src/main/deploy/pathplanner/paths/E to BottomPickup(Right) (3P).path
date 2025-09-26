@@ -72,7 +72,12 @@
       "name": "runRoller",
       "waypointRelativePos": 0,
       "endWaypointRelativePos": 0.050799999999999484,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "runRoller"
+        }
+      }
     }
   ],
   "globalConstraints": {

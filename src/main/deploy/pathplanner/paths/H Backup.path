@@ -31,7 +31,41 @@
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "ResetReachedTarget",
+      "waypointRelativePos": 0.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ResetReachedTarget"
+        }
+      }
+    },
+    {
+      "name": "runRoller",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": 0.04439999999999895,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "runRoller"
+        }
+      }
+    },
+    {
+      "name": "stow",
+      "waypointRelativePos": 0.034799999999999054,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "stow"
+        }
+      }
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 4.0,
     "maxAcceleration": 2.5,
