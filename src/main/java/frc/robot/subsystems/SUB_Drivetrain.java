@@ -140,10 +140,12 @@ StructArrayPublisher<SwerveModuleState> desiredStatePublisher = NetworkTableInst
     m_poseEstimator.update(Rotation2d.fromDegrees(getAngle()),
         new SwerveModulePosition[] {frontLeft.getPosition(), frontRight.getPosition(),
             backLeft.getPosition(), backRight.getPosition()});
-    m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
-    modules = new MAXSwerveModule[] {frontLeft, frontRight, backLeft, backRight};
 
-    m_field.setRobotPose(getPose());
+    // Cache the robot's current pose to avoid redundant calls and object creations.
+    // This value is calculated once per periodic cycle and reused for all odometry and telemetry purposes.
+    Pose2d currentPose = m_poseEstimator.getEstimatedPosition();
+    m_field.setRobotPose(currentPose);
+    modules = new MAXSwerveModule[] {frontLeft, frontRight, backLeft, backRight};
 
     m_fieldRelVel = new FieldRelativeSpeed(
         Constants.Drivetrain.kDriveKinematics.toChassisSpeeds(frontLeft.getState(),
@@ -152,19 +154,19 @@ StructArrayPublisher<SwerveModuleState> desiredStatePublisher = NetworkTableInst
     m_fieldRelAccel = new FieldRelativeAccel(m_fieldRelVel, m_lastFieldRelVel, 0.02);
     m_lastFieldRelVel = m_fieldRelVel;
 
-    publisher.set(m_poseEstimator.getEstimatedPosition());
+    publisher.set(currentPose);
     SmartDashboard.putNumberArray("Drive/PoseEstimator",
-        new double[] {m_poseEstimator.getEstimatedPosition().getX(),
-            m_poseEstimator.getEstimatedPosition().getY(),
-            m_poseEstimator.getEstimatedPosition().getRotation().getDegrees()});
+        new double[] {currentPose.getX(),
+            currentPose.getY(),
+            currentPose.getRotation().getDegrees()});
 
     SmartDashboard.putData("Drive/Field", m_field);
     SmartDashboard.putNumberArray("Odometry",
-        new double[] {getPose().getX(), getPose().getY(), getPose().getRotation().getDegrees()});
+        new double[] {currentPose.getX(), currentPose.getY(), currentPose.getRotation().getDegrees()});
 
-    SmartDashboard.putNumber("Drive/Robot Pose X meters", (getPose().getX()));
-    SmartDashboard.putNumber("Drive/Robot Pose Y meters", (getPose().getY()));
-    SmartDashboard.putNumber("Drive/rotation", getPose().getRotation().getDegrees());
+    SmartDashboard.putNumber("Drive/Robot Pose X meters", (currentPose.getX()));
+    SmartDashboard.putNumber("Drive/Robot Pose Y meters", (currentPose.getY()));
+    SmartDashboard.putNumber("Drive/rotation", currentPose.getRotation().getDegrees());
     SmartDashboard.putNumber("Drive/Robot Speed", modules[0].getVelocityDrive());
 
     SmartDashboard.putNumber("BACK RIGHT MODULE POSITION", backRight.getPosition().distanceMeters);
