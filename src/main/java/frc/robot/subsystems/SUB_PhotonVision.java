@@ -38,7 +38,12 @@ public class SUB_PhotonVision extends SubsystemBase {
   }
 
   private SUB_PhotonVision() {
-    at_field =  AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark); // TODO: Change for diff events
+    try {
+      at_field =  new AprilTagFieldLayout("C:\\Users\\Robotiators\\Documents\\GitHub\\2026Season\\src\\main\\deploy\\2026-rebuilt-andymark.json"); // TODO: Change for diff events
+
+    } catch (Exception e) {
+      System.err.println("hehehehaw");
+    }
 
     cam1.setPipelineIndex(0);
     cam2.setPipelineIndex(0);
