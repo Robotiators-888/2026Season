@@ -44,6 +44,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Field;
 import frc.robot.Constants.LEDs;
 import frc.robot.Constants.Operator;
+import frc.robot.commands.CMD_AimAlign;
 import frc.robot.subsystems.SUB_Drivetrain;
 import frc.robot.subsystems.SUB_LEDs;
 import frc.robot.subsystems.SUB_PhotonVision;
@@ -156,7 +157,8 @@ public class RobotContainer {
          * @return the command to run in autonomous
          */
         public Command getAutonomousCommand() {
-                return autoChooser.getSelected();
+                return new CMD_AimAlign(drivetrain, photonVision);
+                // return autoChooser.getSelected();
                 
                 
         }
@@ -191,7 +193,7 @@ public class RobotContainer {
         }
 
         public void autonomousPeriodic() {
-                photonAutonPoseUpdate();
+                photonPoseUpdate();
         }
 
         public void teleopInit() {
@@ -302,67 +304,6 @@ public class RobotContainer {
 
                                 double distance = translate.getNorm();
                                 double xStddev = Math.pow(distance, 2) / 8.0088;
-                                double yStddev = xStddev;
-                                double rotStddev = Units.degreesToRadians(120.0);
-                                drivetrain.publisher4.set(photonPose.toPose2d());
-                                drivetrain.m_poseEstimator.setVisionMeasurementStdDevs(
-                                                VecBuilder.fill(xStddev, yStddev, rotStddev));
-                                drivetrain.addVisionMeasurement(photonPose.toPose2d(),
-                                                photonPoseOptional.get().timestampSeconds);
-
-                                drivetrain.publisher4.set(photonPose.toPose2d());
-                        }
-                }
-        }
-
-        public static void photonAutonPoseUpdate() {
-                Optional<EstimatedRobotPose> photonPoseOptional = photonVision.getCam1Pose();
-
-                if (photonPoseOptional.isPresent()) {
-                        Pose3d photonPose = photonPoseOptional.get().estimatedPose;
-
-                        if (photonPose.getX() >= 0 && photonPose.getX() <= Field.fieldLength
-                                        && photonPose.getY() >= 0
-                                        && photonPose.getY() <= Field.fieldWidth
-                                        && photonVision.getCam1BestTarget() != null) {
-
-                                Pose2d closestTag = photonVision.at_field.getTagPose(
-                                                photonVision.getCam1BestTarget().getFiducialId())
-                                                .get().toPose2d();
-                                Translation2d translate = closestTag.minus(photonPose.toPose2d())
-                                                .getTranslation();
-
-                                double distance = translate.getNorm();
-                                double xStddev = Math.pow(distance, 1.75) * (3 * (Math.sqrt(Math.pow(drivetrain.getChassisSpeeds().vxMetersPerSecond,2)+Math.pow(drivetrain.getChassisSpeeds().vyMetersPerSecond,2)))/ 4.92) / 3.6;
-                                double yStddev = xStddev;
-                                double rotStddev = Units.degreesToRadians(120.0);
-                                drivetrain.publisher3.set(photonPose.toPose2d());
-                                drivetrain.m_poseEstimator.setVisionMeasurementStdDevs(
-                                                VecBuilder.fill(xStddev, yStddev, rotStddev));
-                                drivetrain.addVisionMeasurement(photonPose.toPose2d(),
-                                                photonPoseOptional.get().timestampSeconds);
-                                drivetrain.publisher3.set(photonPose.toPose2d());
-                        }
-                }
-
-                photonPoseOptional = photonVision.getCam2Pose();
-
-                if (photonPoseOptional.isPresent()) {
-                        Pose3d photonPose = photonPoseOptional.get().estimatedPose;
-
-                        if (photonPose.getX() >= 0 && photonPose.getX() <= Field.fieldLength
-                                        && photonPose.getY() >= 0
-                                        && photonPose.getY() <= Field.fieldWidth
-                                        && photonVision.getCam2BestTarget() != null) {
-
-                                Pose2d closestTag = photonVision.at_field.getTagPose(
-                                                photonVision.getCam2BestTarget().getFiducialId())
-                                                .get().toPose2d();
-                                Translation2d translate = closestTag.minus(photonPose.toPose2d())
-                                                .getTranslation();
-
-                                double distance = translate.getNorm();
-                                double xStddev = Math.pow(distance, 1.75) * (3 * (Math.sqrt(Math.pow(drivetrain.getChassisSpeeds().vxMetersPerSecond,2)+Math.pow(drivetrain.getChassisSpeeds().vyMetersPerSecond,2)))/ 4.92) / 3.6;
                                 double yStddev = xStddev;
                                 double rotStddev = Units.degreesToRadians(120.0);
                                 drivetrain.publisher4.set(photonPose.toPose2d());

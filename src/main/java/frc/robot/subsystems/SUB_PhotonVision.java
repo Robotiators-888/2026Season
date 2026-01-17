@@ -16,6 +16,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.PhotonVision;
 
@@ -39,7 +40,8 @@ public class SUB_PhotonVision extends SubsystemBase {
 
   private SUB_PhotonVision() {
     try {
-      at_field =  new AprilTagFieldLayout("C:\\Users\\Robotiators\\Documents\\GitHub\\2026Season\\src\\main\\deploy\\2026-rebuilt-andymark.json"); // TODO: Change for diff events
+      at_field =  AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark); // TODO: Change for diff events
+      
 
     } catch (Exception e) {
       System.err.println("hehehehaw");
