@@ -48,10 +48,10 @@ public class CMD_AimAlign extends RunCommand {
     Pose2d targetPose = new Pose2d();
 
     Pose2d tPose = (DriverStation.getAlliance().equals(Optional.of(Alliance.Red)))
-      ? photonVision.at_field.getTagPose(26).orElse(new Pose3d()).toPose2d()
-      : photonVision.at_field.getTagPose(10).orElse(new Pose3d()).toPose2d();
+      ? photonVision.at_field.getTagPose(10).orElse(new Pose3d()).toPose2d()
+      : photonVision.at_field.getTagPose(26).orElse(new Pose3d()).toPose2d();
     Rotation2d targetRotation = new Rotation2d(tPose.getX()-currentPose.getX(),tPose.getY()-currentPose.getY());
-    targetPose = new Pose2d(tPose.getX()+((DriverStation.getAlliance().equals(Optional.of(Alliance.Red))) ?  Units.inchesToMeters(23.5) : Units.inchesToMeters(23.5)), tPose.getY(),
+    targetPose = new Pose2d(tPose.getX()+((DriverStation.getAlliance().equals(Optional.of(Alliance.Red))) ?  Units.inchesToMeters(-23.5) : Units.inchesToMeters(23.5)), tPose.getY(),
         targetRotation);
     robotAngleController.reset();
     drivetrain.publisher2.set(targetPose);

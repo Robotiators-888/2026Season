@@ -157,8 +157,20 @@ public class RobotContainer {
          * @return the command to run in autonomous
          */
         public Command getAutonomousCommand() {
-                return new CMD_AimAlign(drivetrain, photonVision);
-                // return autoChooser.getSelected();
+                
+                return autoChooser.getSelected();
+                // try{
+                // // // Load the path we want to pathfind to and follow
+                // // PathConstraints constraints = new PathConstraints(
+                // // 0.5, 0.5,
+                // // Units.degreesToRadians(180), Units.degreesToRadians(180));
+                // PathPlannerAuto auto = new PathPlannerAuto("New Auto");
+                // return Commands.sequence( auto,new CMD_AimAlign(drivetrain, photonVision));
+                // } catch (Exception e) {
+                //         DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
+                //         return Commands.none();
+                // }
+                
                 
                 
         }
