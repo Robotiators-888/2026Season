@@ -125,6 +125,11 @@ public class RobotContainer {
 
                 Driver1.leftStick().onTrue(new InstantCommand(() -> drivetrain.zeroHeading())); // TODO:
                                                                                                 // Change
+                Driver1.x().toggleOnTrue(new CMD_AimAlign(drivetrain, photonVision,
+                                () -> -MathUtil.applyDeadband(Driver1.getRawAxis(1),
+                                                Operator.kDriveDeadband),
+                                () -> -MathUtil.applyDeadband(Driver1.getRawAxis(0),
+                                                Operator.kDriveDeadband)));
                 
 
         }

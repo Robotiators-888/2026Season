@@ -7,6 +7,8 @@ package frc.robot.commands;
 import static edu.wpi.first.units.Units.Meters;
 
 import java.util.Optional;
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -25,16 +27,20 @@ public class CMD_AimAlign extends RunCommand {
   private final SUB_PhotonVision photonVision;
   private final SUB_Drivetrain drivetrain;
   private Pose2d targetPose = new Pose2d();
+  private final DoubleSupplier translationXSupplier;
+  private final DoubleSupplier translationYSupplier;
 
-  private final PIDController robotAngleController = new PIDController(0.7, 0, 0.05);
+  private final PIDController robotAngleController = new PIDController(1.5, 0, 0.05);
 
 
-  public CMD_AimAlign(SUB_Drivetrain drivetrain, SUB_PhotonVision photonVision) {
+  public CMD_AimAlign(SUB_Drivetrain drivetrain, SUB_PhotonVision photonVision, DoubleSupplier translationXSupplier, DoubleSupplier translationYSupplier) {
     super(() -> {
     }, drivetrain);
 
     this.drivetrain = drivetrain;
     this.photonVision = photonVision;
+    this.translationXSupplier = translationXSupplier;
+    this.translationYSupplier = translationYSupplier;
     robotAngleController.enableContinuousInput(-Math.PI, Math.PI);
     
     
@@ -45,7 +51,6 @@ public class CMD_AimAlign extends RunCommand {
   public void initialize() {
     robotAngleController.setTolerance(Units.degreesToRadians(5.0));
     Pose2d currentPose = drivetrain.getPose();
-    Pose2d targetPose = new Pose2d();
 
     Pose2d tPose = (DriverStation.getAlliance().equals(Optional.of(Alliance.Red)))
       ? photonVision.at_field.getTagPose(10).orElse(new Pose3d()).toPose2d()
@@ -70,7 +75,7 @@ public class CMD_AimAlign extends RunCommand {
         MathUtil.angleModulus(currentPose.getRotation().getRadians()),
         MathUtil.angleModulus(targetRotation.getRadians()));
 
-    drivetrain.drive(0, 0, omegaSpeed, true, true);
+    drivetrain.drive(translationXSupplier.getAsDouble(), translationYSupplier.getAsDouble(), omegaSpeed, true, true);
     SmartDashboard.putNumber("Theta Error", Math.abs(currentPose.getRotation().getRadians() - targetPose.getRotation().getRadians()));
     
   }
@@ -82,8 +87,6 @@ public class CMD_AimAlign extends RunCommand {
 
   @Override
   public boolean isFinished() {
-    boolean atSetpoint = robotAngleController.atSetpoint();
-    SmartDashboard.putBoolean("AlignCommandComplete!", atSetpoint);
-    return atSetpoint;
+    return false;
   }
 }
