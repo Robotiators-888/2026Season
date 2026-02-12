@@ -184,11 +184,11 @@ public final class Constants {
                 //tan(20/12)
                 public static final String kCam1Name = "AprilTagCam1";
                 public static final Rotation3d cameraRotation = new Rotation3d(
-                                Units.degreesToRadians(0), Units.degreesToRadians(0),
-                                Units.degreesToRadians(-30));
+                                Units.degreesToRadians(0), Units.degreesToRadians(-25),
+                                Units.degreesToRadians(0));
                 public static final Transform3d kRobotToCamera1 = new Transform3d(
-                                Units.inchesToMeters(-1.5), Units.inchesToMeters(12),
-                                Units.inchesToMeters(20), cameraRotation);
+                                Units.inchesToMeters(12), Units.inchesToMeters(2.5),
+                                Units.inchesToMeters(12.25), cameraRotation);
 
                 public static final String kCam2Name = "AprilTagCam2"; // TODO: Change to the correct name(AprilTagCam) and Transform3d and Rotation3d (Make sure to use this Transform3d and Rotation3d for the other camera)
                 public static final Rotation3d cameraRotation2 = new Rotation3d(
