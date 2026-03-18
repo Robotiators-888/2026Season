@@ -95,7 +95,7 @@ public class RobotContainer {
         private final SendableChooser<Command> autoChooser;
         public static final SUB_LEDs leds = SUB_LEDs.getInstance();
         public static final SUB_Shooter shooter = SUB_Shooter.getInstance();
-        public static final SUB_IntakeRoller intake = SUB_IntakeRoller.getInstance();
+        public static final SUB_IntakeRoller intakeroller = SUB_IntakeRoller.getInstance();
         public static final SUB_Index index = SUB_Index.getInstance();
         public static final SUB_IntakeArm intakearm = SUB_IntakeArm.getInstance();
         public static final PowerDistribution powerDistribution = new PowerDistribution();
@@ -157,9 +157,9 @@ public class RobotContainer {
                         })
                 );
 
-                intake.setDefaultCommand(new InstantCommand(() -> {
-                        intake.set(0);
-                }, intake));
+                intakeroller.setDefaultCommand(new InstantCommand(() -> {
+                        intakeroller.set(0);
+                }, intakeroller));
                 intakearm.setDefaultCommand( new InstantCommand(() -> {
                         intakearm.setArm(0);
                 }, intakearm));
@@ -185,12 +185,12 @@ public class RobotContainer {
                 NamedCommands.registerCommand("Intake",
                         new RunCommand(() -> 
                                 intakeArmAndRollers()
-                        ,intake,intakearm)
+                        ,intakeroller,intakearm)
                 );
 
 
                 NamedCommands.registerCommand("StopIntake",
-                                new InstantCommand(() -> intake.set(0), intake));
+                                new InstantCommand(() -> intakeroller.set(0), intakeroller));
 
                 NamedCommands.registerCommand("DeployIntakeEncoder", Commands.run(() -> intakearm.intakeArmDown(), intakearm).until(() -> intakearm.isArmDownReached() || intakearm.isForwardPressed()));
 
@@ -311,8 +311,8 @@ public class RobotContainer {
                         }
                 })).onFalse(new InstantCommand(()->{trenchAligning=false;}));
                 Driver1.rightBumper().whileTrue(new RunCommand(() -> {
-                        intake.setVolts(Constants.Intake.kINTAKE_MOTOR_VOLTAGE);
-                }, intake));
+                        intakeroller.setVolts(Constants.Intake.kINTAKE_MOTOR_VOLTAGE);
+                }, intakeroller));
                 Driver1.rightTrigger().whileTrue(
                         new CMD_AimBot(
                                 drivetrain, 
@@ -624,19 +624,19 @@ public class RobotContainer {
 
         private Command getShakeyCommand () {
                 Command c = new ParallelCommandGroup(
-                                new RunCommand(()->intake.setVolts(Constants.Intake.kINTAKE_MOTOR_VOLTAGE)),
+                                new RunCommand(()->intakeroller.setVolts(Constants.Intake.kINTAKE_MOTOR_VOLTAGE),intakeroller),
                                 new SequentialCommandGroup(
-                                        new RunCommand(()->intakearm.setArm(.15)).withTimeout(.4),
-                                        new RunCommand(()->intakearm.setArm(-.1)).withTimeout(.4)
+                                        new RunCommand(()->intakearm.setArm(.15), intakearm).withTimeout(.4),
+                                        new RunCommand(()->intakearm.setArm(-.1), intakearm).withTimeout(.4)
                                 ).repeatedly()
                         );
-                c.addRequirements(intake, intakearm);
+
                 return c;
         }
 
             //Puts intake down and then activates rollers
     public void intakeArmAndRollers() {
-        intake.setVolts(Constants.Intake.kINTAKE_MOTOR_VOLTAGE);
+        intakeroller.setVolts(Constants.Intake.kINTAKE_MOTOR_VOLTAGE);
         if (!intakearm.isArmDownReached() && !intakeArmAndRollersUntil) {
             // intakeArmDown();
             intakearm.setArm(-.50);
