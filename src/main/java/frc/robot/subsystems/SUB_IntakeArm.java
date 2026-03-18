@@ -72,6 +72,10 @@ public class SUB_IntakeArm extends SubsystemBase{
         SmartDashboard.putBoolean("Intake/Stick Down", stickDown);
     }
 
+    public void set(double speed) {
+        arm.set(speed);
+        //**Only use if you know what you are doing */
+    }
     //sets arm to speed put in method
     public void setArm(double speed) {
         if (arm.getOutputCurrent() > Constants.Intake.kIntake_ARM_FAULT_AMPS) {

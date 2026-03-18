@@ -106,6 +106,7 @@ public class RobotContainer {
         public int listIndex = 0;
         private Boolean lastActiveAlliance = true;
         public double targetRPM = 1000;
+        private boolean intakeArmAndRollersUntil = false;
         Field2d field;
 
         // TrenchCrossing Paths
@@ -183,8 +184,8 @@ public class RobotContainer {
 
                 NamedCommands.registerCommand("Intake",
                         new RunCommand(() -> 
-                                intake.intakeArmAndRollers()
-                        ,intake)
+                                intakeArmAndRollers()
+                        ,intake,intakearm)
                 );
 
 
@@ -632,5 +633,17 @@ public class RobotContainer {
                 c.addRequirements(intake, intakearm);
                 return c;
         }
+
+            //Puts intake down and then activates rollers
+    public void intakeArmAndRollers() {
+        intake.setVolts(Constants.Intake.kINTAKE_MOTOR_VOLTAGE);
+        if (!intakearm.isArmDownReached() && !intakeArmAndRollersUntil) {
+            // intakeArmDown();
+            intakearm.setArm(-.50);
+        } else {
+            intakearm.set(-.025);
+            intakeArmAndRollersUntil = true;
+        }
+    }
 
 }
