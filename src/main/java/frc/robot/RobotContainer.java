@@ -65,7 +65,8 @@ import frc.robot.commands.CMD_AimBotAuto;
 import frc.robot.commands.CMD_Shuttle;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.SUB_Index;
-import frc.robot.subsystems.SUB_Intake;
+import frc.robot.subsystems.SUB_IntakeRoller;
+import frc.robot.subsystems.SUB_IntakeArm;
 import frc.robot.subsystems.SUB_LEDs;
 import frc.robot.subsystems.SUB_PhotonVision;
 import frc.robot.subsystems.SUB_Shooter;
@@ -94,8 +95,9 @@ public class RobotContainer {
         private final SendableChooser<Command> autoChooser;
         public static final SUB_LEDs leds = SUB_LEDs.getInstance();
         public static final SUB_Shooter shooter = SUB_Shooter.getInstance();
-        public static final SUB_Intake intake = SUB_Intake.getInstance();
+        public static final SUB_IntakeRoller intake = SUB_IntakeRoller.getInstance();
         public static final SUB_Index index = SUB_Index.getInstance();
+        public static final SUB_IntakeArm intakearm = SUB_IntakeArm.getInstance();
         public static final PowerDistribution powerDistribution = new PowerDistribution();
         private static String autoName, newAutoName;
         Optional<Alliance> lastAlliance;
@@ -156,8 +158,10 @@ public class RobotContainer {
 
                 intake.setDefaultCommand(new InstantCommand(() -> {
                         intake.set(0);
-                        intake.setArm(0);
                 }, intake));
+                intakearm.setDefaultCommand( new InstantCommand(() -> {
+                        intakearm.setArm(0);
+                }, intakearm));
                 shooter.setDefaultCommand(new RunCommand(() -> {
                         shooter.stop();
                 }, shooter));
@@ -187,7 +191,7 @@ public class RobotContainer {
                 NamedCommands.registerCommand("StopIntake",
                                 new InstantCommand(() -> intake.set(0), intake));
 
-                NamedCommands.registerCommand("DeployIntakeEncoder", Commands.run(() -> intake.intakeArmDown(), intake).until(() -> intake.isArmDownReached() || intake.isForwardPressed()));
+                NamedCommands.registerCommand("DeployIntakeEncoder", Commands.run(() -> intakearm.intakeArmDown(), intakearm).until(() -> intakearm.isArmDownReached() || intakearm.isForwardPressed()));
 
                 // Shooter and Indexer
                 NamedCommands.registerCommand("ManualShoot", Commands.sequence(
@@ -337,11 +341,11 @@ public class RobotContainer {
                         index.setMeteringVolts(-Constants.Index.kINDEX_METERING_MOTOR_VOLTS);
                         shooter.setVolts(-2.5);
                 }, index, shooter));
-                Driver2.povDown().onTrue(Commands.run(()->intake.intakeArmDown(),intake));
-                Driver2.povUp().onTrue(Commands.run(()->intake.intakeArmUp(),intake));
+                Driver2.povDown().onTrue(Commands.run(()->intakearm.intakeArmDown(),intakearm));
+                Driver2.povUp().onTrue(Commands.run(()->intakearm.intakeArmUp(),intakearm));
                 Driver2.rightBumper().whileTrue(new RunCommand(() -> {
-                        intake.setArm(MathUtil.applyDeadband(Driver2.getLeftY(), Operator.kDriveDeadband) * Constants.Intake.kINTAKE_ARM_MOTOR_SPEED);
-                }, intake));
+                        intakearm.setArm(MathUtil.applyDeadband(Driver2.getLeftY(), Operator.kDriveDeadband) * Constants.Intake.kINTAKE_ARM_MOTOR_SPEED);
+                }, intakearm));
                 Driver2.b().whileTrue(
                         new CMD_Shuttle(drivetrain, photonVision, index, shooter,
                                 () -> -(Driver1.getLeftY()),
@@ -621,11 +625,11 @@ public class RobotContainer {
                 Command c = new ParallelCommandGroup(
                                 new RunCommand(()->intake.setVolts(Constants.Intake.kINTAKE_MOTOR_VOLTAGE)),
                                 new SequentialCommandGroup(
-                                        new RunCommand(()->intake.setArm(.15)).withTimeout(.4),
-                                        new RunCommand(()->intake.setArm(-.1)).withTimeout(.4)
+                                        new RunCommand(()->intakearm.setArm(.15)).withTimeout(.4),
+                                        new RunCommand(()->intakearm.setArm(-.1)).withTimeout(.4)
                                 ).repeatedly()
                         );
-                c.addRequirements(intake);
+                c.addRequirements(intake, intakearm);
                 return c;
         }
 

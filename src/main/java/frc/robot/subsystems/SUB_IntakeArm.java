@@ -1,9 +1,6 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.revrobotics.spark.SparkLimitSwitch;
+
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.LimitSwitchConfig.Type;
@@ -14,101 +11,65 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
-public class SUB_Intake extends SubsystemBase {
-    // Initiliazes values and objects used in subsystem
+
+public class SUB_IntakeArm extends SubsystemBase{
     public static boolean extended;
-    private PIDController controller = new PIDController(0.001, 0, 0);
-    private TalonFX intake;
+    private PIDController controller = new PIDController(.001, 0, 0);
     private SparkMax arm;
     private SparkMax armFollower;
     private boolean stickUp = false;
     private boolean stickDown = false;
     private int periodicCountFault = 0;
-    private static SUB_Intake INSTANCE = null;
-    private boolean intakeArmAndRollersUntil = false;
-    public static SUB_Intake getInstance (){
+    private static SUB_IntakeArm INSTANCE = null;
+
+    public static SUB_IntakeArm getInstance (){
         if (INSTANCE == null) {
-            INSTANCE = new SUB_Intake();
-        } 
+                INSTANCE = new SUB_IntakeArm();
+        }
         return INSTANCE;
     }
 
-    private SUB_Intake () {
-        //Defines motors with IDs and what controller
-        intake = new TalonFX(Constants.Intake.kINTAKE_MOTOR_CANID);
+    private SUB_IntakeArm() {
+        //defines motors with IDs and what controller
         arm = new SparkMax(Constants.Intake.kARM_MOTOR_CANID, MotorType.kBrushless);
         armFollower = new SparkMax(Constants.Intake.kARM_FOLLOWER_MOTOR_CANID, MotorType.kBrushless);
         configureMotors();
     }
 
     private void configureMotors(){
-        //Creates config for motors
         SparkMaxConfig config = new SparkMaxConfig();
-        config.encoder.positionConversionFactor(360.0 / 23); // Converts rotations to degrees, Thrifty bot cycloial gearbox 23:1
-        config.encoder.velocityConversionFactor((360.0 / 23) / 60.0); // Converts RPM to deg/sec
-        config.smartCurrentLimit(35); //Sets stall limit for motor in amps
-        config.inverted(true); //Inverts motor
-        arm.configure(config, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters); //Sets persist parameters
-        SparkMaxConfig followerConfig = new SparkMaxConfig(); //Creates follower spark max config
-        followerConfig.follow(arm, true); // Makes follower opposite compared to leader
-        followerConfig.smartCurrentLimit(35);//Sets stall limit for motor in amps
-        armFollower.configure(followerConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);  //Sets persist parameters
-        TalonFXConfiguration talonConfig = new TalonFXConfiguration(); //Creates new TalonFX Config
-        talonConfig.CurrentLimits.SupplyCurrentLimitEnable = true; //enables supply current limit which is how much goes to motor controller
-        talonConfig.CurrentLimits.SupplyCurrentLimit = 40; //Sets supply current limit in amps
-        talonConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive; // Makes it so positive values make the motor spin CC
-        intake.getConfigurator().apply(talonConfig); //Applies Config to the intake roller
+        config.encoder.positionConversionFactor(360.0/23); //Converst rotations to degrees, gearbox 23:1
+        config.encoder.velocityConversionFactor((360.0 / 23) / 60.0); //Converst from RPM to deg/sec
+        config.smartCurrentLimit(35); //sets current limit in amps
+        config.inverted(true);
+        arm.configure(config, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
+        SparkMaxConfig followerConfig = new SparkMaxConfig(); //creates config from follower sparkmax
+        followerConfig.follow(arm, true); //follows other arm but inverted
+        followerConfig.smartCurrentLimit(35);//sets current limit to 35 amps
+        armFollower.configure(followerConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
     }
 
-    //Returns if motor arm is down T/F
     public boolean isForwardPressed() {
         return stickUp||Math.abs(arm.getEncoder().getPosition()-Constants.Intake.kINTAKE_ARM_TOP_SETPOINT)<10;
     }
 
-    //Returns if motor arm is up T/F
     public boolean isReversePressed() {
         return stickDown||Math.abs(arm.getEncoder().getPosition()-Constants.Intake.kINTAKE_ARM_BOTTOM_SETPOINT)<10;
     }
 
-    //Sets voltage of intake roller
-    public void setVolts(double speed){
-        intake.setVoltage(speed);
-    }
-
-    //Sets speed of intake roller
-    public void set(double speed){
-        intake.set(speed);
-    }
-    //Returns RPM of intake roller
-    public double intakeRPM(){
-        return intake.getVelocity().getValue().baseUnitMagnitude();
-    }
-
-    // Logs everything every periodic
     public void periodic() {
-        SmartDashboard.putNumber("Intake/IntakeRPM", intakeRPM()); //puts Intake motor RPM into Smart Dashboard
 
         SmartDashboard.putBoolean("Intake/Arm Forward Limit", isForwardPressed()); //Returns if the intake arm is down
         SmartDashboard.putBoolean("Intake/Arm Reverse Limit", isReversePressed()); //Returns if the intake arm is up
-        
+
         SmartDashboard.putNumber("Intake/Arm Encoder Pos", arm.getEncoder().getPosition()); //Returns angle of intake arm
-        SmartDashboard.putNumber("Intake/Intake Encoder Pos", intake.getPosition().getValueAsDouble());
 
         SmartDashboard.putNumber("Intake/Arm Output Current", arm.getOutputCurrent()); //Returns how much current is going into the intake arm motors
-
-        SmartDashboard.putNumber("Intake/Intake Stator Current", intake.getStatorCurrent().getValueAsDouble()); //Return stator current of intake roller
-        SmartDashboard.putNumber("Intake/Intake Supply Current", intake.getSupplyCurrent().getValueAsDouble());
-
-        SmartDashboard.putNumber("Intake/Intake Supply Voltage", intake.getSupplyVoltage().getValueAsDouble());
-        SmartDashboard.putNumber("Intake/Intake Motor Voltage", intake.getMotorVoltage().getValueAsDouble());
 
         SmartDashboard.putNumber("Intake/Arm Bus Voltage", arm.getBusVoltage());
 
         SmartDashboard.putBoolean("Intake/Stick Up", stickUp);  
         SmartDashboard.putBoolean("Intake/Stick Down", stickDown);
-        if (periodicCountFault > 0) {
-            periodicCountFault--;
-        }
     }
 
     //sets arm to speed put in method
@@ -174,17 +135,5 @@ public class SUB_Intake extends SubsystemBase {
     //Returns if arm is up
     public boolean isArmUpReached() {
         return Math.abs(arm.getEncoder().getPosition() - Constants.Intake.kINTAKE_ARM_TOP_SETPOINT) < 3.0;
-    }
-
-    //Puts intake down and then activates rollers
-    public void intakeArmAndRollers() {
-        setVolts(Constants.Intake.kINTAKE_MOTOR_VOLTAGE);
-        if (!isArmDownReached() && !intakeArmAndRollersUntil) {
-            // intakeArmDown();
-            setArm(-.50);
-        } else {
-            arm.set(-.025);
-            intakeArmAndRollersUntil = true;
-        }
     }
 }
