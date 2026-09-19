@@ -4,7 +4,7 @@ import static edu.wpi.first.units.Units.RPM;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -24,7 +24,7 @@ public class SUB_Shooter extends SubsystemBase {
     private TalonFX topFlywheel;
     private TalonFX bottomFlywheel;
     private final VoltageOut voltageRequest = new VoltageOut(0);
-    private final VelocityVoltage m_request = new VelocityVoltage(0);
+    private final VelocityTorqueCurrentFOC m_request = new VelocityTorqueCurrentFOC(0);
     private double desiredSpeed = 0;
     private TalonFXConfiguration shooterConfig = new TalonFXConfiguration();
     private double fuelShot = 0;
@@ -63,12 +63,19 @@ public class SUB_Shooter extends SubsystemBase {
 
     private void configFlywheel() {
         // Configure current limits and neutral mode
+        // Current Limits sized for maximum acceleration and steady-state FOC torque requirements
+        // Stator Current Limit: Set to 120A to allow high acceleration torque without jamming the motor
         shooterConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-        shooterConfig.CurrentLimits.StatorCurrentLimit = 100;
+        shooterConfig.CurrentLimits.StatorCurrentLimit = 120.0; // Amperes
+        // Supply Current Limit: Set to 80A with a trigger time of 0.5s to prevent PDP/PDH breakers from tripping during high-speed sags
         shooterConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        shooterConfig.CurrentLimits.SupplyCurrentLimit = 60;
-        shooterConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
-        shooterConfig.CurrentLimits.SupplyCurrentLowerTime = 1.0;
+        shooterConfig.CurrentLimits.SupplyCurrentLimit = 80.0; // Amperes
+        shooterConfig.CurrentLimits.SupplyCurrentLowerLimit = 40.0; // Amperes
+        shooterConfig.CurrentLimits.SupplyCurrentLowerTime = 0.5; // Seconds
+
+        // Torque Current specific configuration
+        shooterConfig.TorqueCurrent.PeakForwardTorqueCurrent = 120.0; // Amperes
+        shooterConfig.TorqueCurrent.PeakReverseTorqueCurrent = -120.0; // Amperes
         shooterConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         shooterConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 

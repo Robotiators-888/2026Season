@@ -4,7 +4,8 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
-import edu.wpi.first.math.controller.PIDController;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkBase.ControlType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -13,7 +14,7 @@ import frc.robot.utils.Alert;
 public class SUB_Arm extends SubsystemBase {
     /** Subsystem state and configuration constants */
     public static boolean extended;
-    private PIDController controller = new PIDController(0.002, 0, 0);
+    private SparkClosedLoopController controller;
     private SparkMax arm;
     private SparkMax armFollower;
     private boolean stickUp = false;
@@ -43,11 +44,20 @@ public class SUB_Arm extends SubsystemBase {
         SparkMaxConfig config = new SparkMaxConfig();
         config.encoder.positionConversionFactor(360.0 / 23); // Converts rotations to degrees
         config.encoder.velocityConversionFactor((360.0 / 23) / 60.0); // Converts RPM to deg/sec
+        // Smart Current Limit: 35A is sufficient for holding/moving the arm without overheating
         config.smartCurrentLimit(35); // Sets stall limit in amps
         config.inverted(true);
+
+        // Configure Closed Loop PID directly on the SparkMax
+        // kP = 0.002 Volts/Degree error equivalent mapped to duty cycle (0.002 roughly matches original WPILib PID)
+        config.closedLoop.pid(0.002, 0.0, 0.0);
+        // Uses PrimaryEncoder by default
+
         arm.configure(config, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
+        controller = arm.getClosedLoopController();
         
         // Configure follower motor
+
         SparkMaxConfig followerConfig = new SparkMaxConfig();
         followerConfig.follow(arm, true); // Opposite direction compared to leader
         followerConfig.smartCurrentLimit(35);
@@ -139,20 +149,20 @@ public class SUB_Arm extends SubsystemBase {
         return extended;
     }
 
-    /** Drives the arm to the bottom setpoint using PID */
+    /** Drives the arm to the bottom setpoint using SparkMax hardware PID */
     public void intakeArmDown() {
-        setArm(controller.calculate(arm.getEncoder().getPosition(), Constants.Arm.kARM_BOTTOM_SETPOINT)); 
+        controller.setReference(Constants.Arm.kARM_BOTTOM_SETPOINT, ControlType.kPosition);
     }
 
     /** Manual test drive for the arm */
     public void intakeArmTest() {
-        // Mr. Lange said to make the PID based
-        arm.set(controller.calculate(arm.getEncoder().getPosition(), Constants.Arm.kARM_BOTTOM_SETPOINT)); // Mr. Lange said half intake being held down
+        // Hardware PID based position tracking
+        controller.setReference(Constants.Arm.kARM_BOTTOM_SETPOINT, ControlType.kPosition); // Half intake being held down
     }
 
-    /** Drives the arm to the top setpoint using PID */
+    /** Drives the arm to the top setpoint using SparkMax hardware PID */
     public void intakeArmUp() {
-        setArm(controller.calculate(arm.getEncoder().getPosition(), Constants.Arm.kARM_TOP_SETPOINT)); 
+        controller.setReference(Constants.Arm.kARM_TOP_SETPOINT, ControlType.kPosition);
     }
 
     public boolean isArmDownReached() {

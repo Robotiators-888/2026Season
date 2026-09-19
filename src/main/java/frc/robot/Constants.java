@@ -33,22 +33,32 @@ public final class Constants {
                 public static final int kSHOOTER_bottomFlywheel_MOTOR_CANID = 43;
                 public static final double kSHOOTER_FLYWHEEL_RPM = 1000; // RPM
                 
-                // Feedforward constants (Manual tuning in progress)
-                public static final double kSHOOTER_FLYWHEEL_kS = 0.0; //Volts
-                public static final double kSHOOTER_FLYWHEEL_kV = 0.15225; //Volts/sec // 5% increase from previous Mr.Lange suggests, 0.145 was from Bethesda okay in match, but not good
-                public static final double kSHOOTER_FLYWHEEL_kA = 0.0; //Volts/sec^2
+                // Feedforward constants (Torque Current FOC)
+                // kS: Amperes (A) - Current required to overcome static friction. Typical Kraken X60 is ~0.5 A.
+                public static final double kSHOOTER_FLYWHEEL_kS = 0.5; // Amperes
+                // kV: Amperes per rps (A/rps) - In FOC, back-EMF is managed internally. Set to 0 unless viscous drag compensation is needed.
+                public static final double kSHOOTER_FLYWHEEL_kV = 0.0; // A / rps
+                // kA: Amperes per rps^2 (A/rps^2) - Current required to accelerate the flywheel inertia. Estimated based on J_system.
+                public static final double kSHOOTER_FLYWHEEL_kA = 0.05; // A / rps^2
                 
-                // PID constants
-                public static final double kSHOOTER_FLYWHEEL_kP = 0.5;
-                public static final double kSHOOTER_FLYWHEEL_kI = 0;
-                public static final double kSHOOTER_FLYWHEEL_kD = 0;
+                // PID constants (Torque Current FOC)
+                // kP: Amperes per rps (A/rps) - Sized to produce ~5A instantaneous correction for 1 rps error.
+                public static final double kSHOOTER_FLYWHEEL_kP = 5.0; // A / rps
+                public static final double kSHOOTER_FLYWHEEL_kI = 0.0;
+                public static final double kSHOOTER_FLYWHEEL_kD = 0.0;
         }
 
         /** Intake roller motor configuration */
         public static final class Roller {
                 public static final int kINTAKE_MOTOR_CANID = 30; 
-                public static final double kROLLER_MOTOR_SPEED = 0.9; //Percent
-                public static final double kROLLER_MOTOR_VOLTAGE = 10.91276304645254; //Volts
+                // FOC Torque Current limits and PID constants
+                public static final double kROLLER_MOTOR_RPM = 6600.0; // RPM (Calculated for FOC 12V equiv)
+                public static final double kROLLER_FLYWHEEL_kS = 0.5; // Amperes
+                public static final double kROLLER_FLYWHEEL_kV = 0.0; // A / rps
+                public static final double kROLLER_FLYWHEEL_kA = 0.05; // A / rps^2
+                public static final double kROLLER_FLYWHEEL_kP = 2.0; // A / rps
+                public static final double kROLLER_FLYWHEEL_kI = 0.0;
+                public static final double kROLLER_FLYWHEEL_kD = 0.0;
         }
 
         /** Intake arm motor configuration and relative setpoints (NEO 2.0 Encoder) */

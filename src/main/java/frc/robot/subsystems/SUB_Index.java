@@ -15,6 +15,7 @@ public class SUB_Index extends SubsystemBase {
     /** Subsystem hardware components */
     private SparkMax index;
     private SparkMax meteringWheel;
+    private SparkClosedLoopController indexController;
     private SparkClosedLoopController meteringController;
     
     private double targetMeteringRPM = 0;
@@ -34,20 +35,25 @@ public class SUB_Index extends SubsystemBase {
         index = new SparkMax(Constants.Index.KINDEX_MOTOR_CANID, MotorType.kBrushless);
         meteringWheel = new SparkMax(Constants.Index.kMETERING_WHEEL_CANID, MotorType.kBrushless);
         
-        // Configure main indexer motor
+        // Configure main indexer motor for Torque/Current control to ensure it pushes balls with constant force
         SparkMaxConfig indexConfig = new SparkMaxConfig();
-        indexConfig.smartCurrentLimit(60);
+        // Smart Current Limit: 40 Amps. High enough to push jammed balls but low enough to protect the NEO.
+        indexConfig.smartCurrentLimit(40);
         indexConfig.inverted(true);
         index.configure(indexConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
+        indexController = index.getClosedLoopController();
         
-        // Configure high-speed metering wheel with aggressive PID
+        // Configure high-speed metering wheel with Feedforward-heavy tuning for stable speed holding
         SparkMaxConfig meteringConfig = new SparkMaxConfig();
-        meteringConfig.smartCurrentLimit(60);
+        // Smart Current Limit: 40 Amps.
+        meteringConfig.smartCurrentLimit(40);
         
-        double kP = 0.00005; // Aggressive P for rapid speed ramp
+        // PID/FF Config for RPM control.
+        // Using very low P to prevent reactive current spikes. Most of the effort is handled by kFF.
+        double kP = 0.00001; // Tiny proportional gain just to correct steady-state errors
         double kI = 0.0;
         double kD = 0.0; 
-        double kFF = 0.0021; // Based on NEO nominal RPM at 12V
+        double kFF = 0.0021; // FF based on NEO nominal free speed at 12V (~5676 RPM => 12V/5676 = ~0.0021)
         
         meteringConfig.closedLoop.pid(kP, kI, kD);
         meteringConfig.closedLoop.velocityFF(kFF);
@@ -58,9 +64,10 @@ public class SUB_Index extends SubsystemBase {
         meteringController = meteringWheel.getClosedLoopController();
     }
     
-    /** @param speed Target percent output for indexing [-1.0, 1.0] */
+    /** @param speed Target percent output for indexing [-1.0, 1.0]. Converted to Current Request. */
     public void set(double speed){
-        index.set(speed);
+        // Map -1.0 to 1.0 speed to -40A to 40A current request to push with constant torque
+        indexController.setReference(speed * 40.0, ControlType.kCurrent);
     }
     
     /** @return Current velocity of the indexer in RPM */
@@ -81,7 +88,8 @@ public class SUB_Index extends SubsystemBase {
 
     /** @param volts Target voltage for the index motor */
     public void setVolts(double volts) {
-        index.setVoltage(volts);
+        // Fallback for voltage control mapping to equivalent torque limit if needed
+        indexController.setReference((volts / 12.0) * 40.0, ControlType.kCurrent);
     }
 
     /** @param volts Target voltage for the metering motor */

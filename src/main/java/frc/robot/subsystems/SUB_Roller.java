@@ -1,8 +1,9 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -13,8 +14,8 @@ import frc.robot.utils.Alert;
 public class SUB_Roller extends SubsystemBase {
     /** Subsystem hardware components */
     private TalonFX roller;
-    private final VoltageOut voltageRequest = new VoltageOut(0).withEnableFOC(true);
-    private final DutyCycleOut dutyCycleRequest = new DutyCycleOut(0).withEnableFOC(true);
+    private final VelocityTorqueCurrentFOC velocityRequest = new VelocityTorqueCurrentFOC(0);
+    private final TorqueCurrentFOC currentRequest = new TorqueCurrentFOC(0);
     private static SUB_Roller INSTANCE = null;
 
     /**
@@ -36,23 +37,41 @@ public class SUB_Roller extends SubsystemBase {
     private void configureMotors(){
         // Configure TalonFX motor controller with current limits and inversion
         TalonFXConfiguration talonConfig = new TalonFXConfiguration();
+
+        // Supply Current Limit: 40A to prevent brownouts
         talonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        talonConfig.CurrentLimits.SupplyCurrentLimit = 80;
-        talonConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
+        talonConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
+        talonConfig.CurrentLimits.SupplyCurrentLowerLimit = 20.0;
         talonConfig.CurrentLimits.SupplyCurrentLowerTime = 2.2;
+
+        // Stator Current Limit: 60A to allow high acceleration torque without jams
+        talonConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        talonConfig.CurrentLimits.StatorCurrentLimit = 60.0;
+
+        // Torque Current Limits
+        talonConfig.TorqueCurrent.PeakForwardTorqueCurrent = 60.0; // Amperes
+        talonConfig.TorqueCurrent.PeakReverseTorqueCurrent = -60.0; // Amperes
+
+        // PID Configuration for TorqueCurrentFOC
+        talonConfig.Slot0.kS = Constants.Roller.kROLLER_FLYWHEEL_kS;
+        talonConfig.Slot0.kV = Constants.Roller.kROLLER_FLYWHEEL_kV;
+        talonConfig.Slot0.kA = Constants.Roller.kROLLER_FLYWHEEL_kA;
+        talonConfig.Slot0.kP = Constants.Roller.kROLLER_FLYWHEEL_kP;
+        talonConfig.Slot0.kI = Constants.Roller.kROLLER_FLYWHEEL_kI;
+        talonConfig.Slot0.kD = Constants.Roller.kROLLER_FLYWHEEL_kD;
         talonConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         roller.getConfigurator().apply(talonConfig);
     }
 
 
-    /** @param speed Target voltage for the roller motor */
-    public void setVolts(double speed){
-        roller.setControl(voltageRequest.withOutput(speed));
+    /** @param rpm Target velocity for the roller motor */
+    public void setRPM(double rpm){
+        roller.setControl(velocityRequest.withVelocity(rpm / 60.0));
     }
 
-    /** @param speed Target percent output for the roller motor [-1.0, 1.0] */
-    public void set(double speed){
-        roller.setControl(dutyCycleRequest.withOutput(speed));
+    /** @param amps Target torque current for the roller motor */
+    public void setCurrent(double amps){
+        roller.setControl(currentRequest.withOutput(amps));
     }
 
     /** @return Current velocity of the roller in RPM */

@@ -51,7 +51,7 @@ public class CommandUtil {
                 NamedCommands.registerCommand("Intake",
                         new RunCommand(() -> {
                                 arm.intakeArmTest();
-                                roller.setVolts(Constants.Roller.kROLLER_MOTOR_VOLTAGE);
+                                roller.setRPM(Constants.Roller.kROLLER_MOTOR_RPM);
                         }
                                 
                         ,arm,roller)
@@ -60,7 +60,7 @@ public class CommandUtil {
 
                 NamedCommands.registerCommand("StopIntake",
                                 Commands.parallel(
-                                        new InstantCommand(() -> roller.set(0), roller),
+                                        new InstantCommand(() -> roller.setRPM(0), roller),
                                         new InstantCommand(() -> arm.setArm(0), arm)
                                 )
                 );
@@ -134,7 +134,7 @@ public class CommandUtil {
     private Command getShakeyCommand () {
                 
                 Command c = new ParallelCommandGroup(
-                        new RunCommand(()->roller.setVolts(Constants.Roller.kROLLER_MOTOR_VOLTAGE), roller),
+                        new RunCommand(()->roller.setRPM(Constants.Roller.kROLLER_MOTOR_RPM), roller),
                         new SequentialCommandGroup(
                                 new RunCommand(()->arm.setArm(.15), arm).withTimeout(.4),
                                 new RunCommand(()->arm.setArm(-.13), arm).withTimeout(.4)
