@@ -75,7 +75,7 @@ public class SUB_Roller extends SubsystemBase {
     
     /** @return Current velocity of the roller in RPM */
     public double rollerRPM(){
-        return roller.getVelocity().getValue().baseUnitMagnitude();
+        return roller.getVelocity().getValue().in(RPM);
     }
 
     @Override

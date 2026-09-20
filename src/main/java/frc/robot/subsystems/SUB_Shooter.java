@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.RPM;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.CoastOut;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -34,6 +35,7 @@ public class SUB_Shooter extends SubsystemBase {
     private double dipRPM = 0;
     private boolean hasGoneDown = false;
     private boolean isShooting;
+    private final CoastOut coastRequest = new CoastOut();
     
     /** Interpolation map for distance-based RPM calibration */
     private final InterpolatingDoubleTreeMap distanceToRPM = new InterpolatingDoubleTreeMap();
@@ -75,12 +77,13 @@ public class SUB_Shooter extends SubsystemBase {
         shooterConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
         // Configure PID control loop coefficients
-        shooterConfig.Slot0.kS = Constants.Shooter.kSHOOTER_FLYWHEEL_kS;
-        shooterConfig.Slot0.kV = Constants.Shooter.kSHOOTER_FLYWHEEL_kV;
-        shooterConfig.Slot0.kA = Constants.Shooter.kSHOOTER_FLYWHEEL_kA;
-        shooterConfig.Slot0.kP = Constants.Shooter.kSHOOTER_FLYWHEEL_kP; 
-        shooterConfig.Slot0.kI = Constants.Shooter.kSHOOTER_FLYWHEEL_kI;
-        shooterConfig.Slot0.kD = Constants.Shooter.kSHOOTER_FLYWHEEL_kD; 
+        shooterConfig.Slot0
+            .withKS(Constants.Shooter.kSHOOTER_FLYWHEEL_kS)
+            .withKV(Constants.Shooter.kSHOOTER_FLYWHEEL_kV)
+            .withKA(Constants.Shooter.kSHOOTER_FLYWHEEL_kA)
+            .withKP(Constants.Shooter.kSHOOTER_FLYWHEEL_kP)
+            .withKI(Constants.Shooter.kSHOOTER_FLYWHEEL_kI)
+            .withKD(Constants.Shooter.kSHOOTER_FLYWHEEL_kD);
 
         topFlywheel.getConfigurator().apply(shooterConfig);
         bottomFlywheel.getConfigurator().apply(shooterConfig);
@@ -134,7 +137,7 @@ public class SUB_Shooter extends SubsystemBase {
     /** Stops both flywheels */
     public void stop() {
         this.desiredSpeed = 0;
-        topFlywheel.setControl(voltageRequest.withOutput(0));
+        topFlywheel.setControl(coastRequest);
     }
 
     /** @param volts Direct voltage output for manual testing */

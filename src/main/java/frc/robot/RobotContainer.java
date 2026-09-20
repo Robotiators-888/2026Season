@@ -19,10 +19,8 @@ import org.json.simple.parser.ParseException;
 import org.photonvision.EstimatedRobotPose;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -37,14 +35,9 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.NTSendableBuilder;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -56,17 +49,12 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Field;
-import frc.robot.Constants.LEDs;
 import frc.robot.Constants.Operator;
 import frc.robot.commands.CMD_AimBot;
-import frc.robot.commands.CMD_AimBotAuto;
-import frc.robot.commands.CMD_AimBotSpecialLock;
 import frc.robot.commands.CMD_PredictiveAim;
-import frc.robot.commands.CMD_PredictiveAimAuto;
 import frc.robot.commands.CMD_Shuttle;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.SUB_Arm;
@@ -78,8 +66,6 @@ import frc.robot.utils.Alert;
 import frc.robot.utils.AllianceFlipUtil;
 import frc.robot.utils.CommandUtil;
 import frc.robot.utils.Elastic;
-import frc.robot.utils.Elastic.Notification;
-import frc.robot.utils.Elastic.Notification.NotificationLevel;
 import frc.robot.utils.Hub;
 import frc.robot.utils.RobotTelemetry;
 
@@ -245,11 +231,11 @@ public class RobotContainer {
                                 Alert.registerError("Failed to retrieve trench command: " + e.getMessage());
                         }
                 })).onFalse(new InstantCommand(()->{trenchAligning=false;}));
-                Driver1.rightBumper().whileTrue(Commands.run(() -> {
+                Driver1.leftTrigger().whileTrue(Commands.run(() -> {
                         roller.setRPM(1880);
                         arm.intakeArmTest();
                 }, roller, arm));
-                Driver1.leftTrigger().whileTrue(
+                Driver1.rightTrigger().whileTrue(
                         new ParallelCommandGroup(
                                 new CMD_PredictiveAim(
                                         drivetrain, 
@@ -262,28 +248,27 @@ public class RobotContainer {
                                 new RunCommand(()->roller.setRPM(1880), roller)
                         )
                 );
-                Driver1.rightTrigger().whileTrue(
-                        new ParallelCommandGroup(
-                                new CMD_AimBot(
-                                        drivetrain, 
-                                        photonVision, 
-                                        shooter, 
-                                        index,
-                                        () -> -(Driver1.getLeftY()),
-                                        () -> -(Driver1.getLeftX()) 
-                                ),
-                                getCancellableShakeyCommand(() -> Driver2.leftStick().getAsBoolean())
-                        )
-                );
                 Driver1.leftStick().onTrue(new InstantCommand(() -> {
                         fieldRelative = !fieldRelative;
                 }
                 ));
+                Driver1.b().whileTrue(
+                        new CMD_Shuttle(drivetrain, photonVision, index, shooter,
+                                () -> -(Driver1.getLeftY()),
+                                () -> -(Driver1.getLeftX())
+                        )
+                );
+                Driver1.x().whileTrue(
+                        new CMD_Shuttle(drivetrain, photonVision, index, shooter,
+                                () -> -(Driver1.getLeftY()),
+                                () -> -(Driver1.getLeftX())
+                        )
+                );
                 // =========================================================
                 // DRIVER 2
                 // =========================================================
-                Driver2.leftTrigger().whileTrue(new RunCommand(() -> shooter.setRPM(targetRPM), shooter));
-                Driver2.rightTrigger().whileTrue(new RunCommand(() -> {
+                Driver2.rightTrigger().whileTrue(new RunCommand(() -> shooter.setRPM(targetRPM), shooter));
+                Driver2.rightBumper().whileTrue(new RunCommand(() -> {
                         index.setVolts(Constants.Index.kINDEX_MOTOR_VOLTS);
                         index.setMeteringRPM(Constants.Index.kINDEX_METERING_MOTOR_RPM);
                 }, index));
@@ -296,16 +281,10 @@ public class RobotContainer {
                 }, index, shooter));
                 Driver2.povDown().onTrue(Commands.run(()->arm.intakeArmDown(),arm));
                 Driver2.povUp().onTrue(Commands.run(()->arm.intakeArmUp(),arm));
-                Driver2.rightBumper().whileTrue(new RunCommand(() -> {
+                Driver2.leftTrigger().whileTrue(new RunCommand(() -> {
                         arm.setArm(MathUtil.applyDeadband(Driver2.getLeftY(), Operator.kDriveDeadband) * Constants.Arm.kARM_MOTOR_SPEED);
                 }, arm));
 
-                Driver2.b().whileTrue(
-                        new CMD_Shuttle(drivetrain, photonVision, index, shooter,
-                                () -> -(Driver1.getLeftY()),
-                                () -> -(Driver1.getLeftX())
-                        )
-                );
                 Driver2.x().onTrue(new InstantCommand(() -> targetRPM = shooter.getDistanceRPM(
                         drivetrain.getPose().getTranslation().getDistance(
                                 SUB_PhotonVision.getInstance().at_field.getTagPose(
