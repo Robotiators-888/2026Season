@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.RPM;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -24,7 +25,8 @@ public class SUB_Shooter extends SubsystemBase {
     private TalonFX topFlywheel;
     private TalonFX bottomFlywheel;
     private final VoltageOut voltageRequest = new VoltageOut(0);
-    private final VelocityVoltage m_request = new VelocityVoltage(0);
+    private final VelocityTorqueCurrentFOC velocityRequest =
+            new VelocityTorqueCurrentFOC(0).withSlot(0);
     private double desiredSpeed = 0;
     private TalonFXConfiguration shooterConfig = new TalonFXConfiguration();
     private double fuelShot = 0;
@@ -97,7 +99,7 @@ public class SUB_Shooter extends SubsystemBase {
     /** @param rpm Target velocity for both flywheels */
     public void setRPM(double rpm) {
         this.desiredSpeed = rpm;
-        topFlywheel.setControl(m_request.withVelocity(rpm / 60.0));
+        topFlywheel.setControl(velocityRequest.withVelocity(RPM.of(rpm)));
         isShooting = rpm!=0;
     }
 

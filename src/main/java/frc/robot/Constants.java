@@ -34,12 +34,12 @@ public final class Constants {
                 public static final double kSHOOTER_FLYWHEEL_RPM = 1000; // RPM
                 
                 // Feedforward constants (Manual tuning in progress)
-                public static final double kSHOOTER_FLYWHEEL_kS = 0.0; //Volts
-                public static final double kSHOOTER_FLYWHEEL_kV = 0.15225; //Volts/sec // 5% increase from previous Mr.Lange suggests, 0.145 was from Bethesda okay in match, but not good
-                public static final double kSHOOTER_FLYWHEEL_kA = 0.0; //Volts/sec^2
+                public static final double kSHOOTER_FLYWHEEL_kS = 0.0; 
+                public static final double kSHOOTER_FLYWHEEL_kV = 0.0; 
+                public static final double kSHOOTER_FLYWHEEL_kA = 0.0; 
                 
                 // PID constants
-                public static final double kSHOOTER_FLYWHEEL_kP = 0.5;
+                public static final double kSHOOTER_FLYWHEEL_kP = 4.0;
                 public static final double kSHOOTER_FLYWHEEL_kI = 0;
                 public static final double kSHOOTER_FLYWHEEL_kD = 0;
         }

@@ -1,18 +1,28 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.RPM;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.utils.Alert;
+import com.ctre.phoenix6.controls.CoastOut;
 
 public class SUB_Roller extends SubsystemBase {
     /** Subsystem hardware components */
     private TalonFX roller;
+    private final CoastOut coastRequest = new CoastOut();
+    private final VelocityTorqueCurrentFOC velocityRequest =
+            new VelocityTorqueCurrentFOC(0).withSlot(0);
     private final VoltageOut voltageRequest = new VoltageOut(0).withEnableFOC(true);
     private final DutyCycleOut dutyCycleRequest = new DutyCycleOut(0).withEnableFOC(true);
     private static SUB_Roller INSTANCE = null;
@@ -37,24 +47,32 @@ public class SUB_Roller extends SubsystemBase {
         // Configure TalonFX motor controller with current limits and inversion
         TalonFXConfiguration talonConfig = new TalonFXConfiguration();
         talonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        talonConfig.CurrentLimits.SupplyCurrentLimit = 80;
+        talonConfig.CurrentLimits.SupplyCurrentLimit = 60;
         talonConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
-        talonConfig.CurrentLimits.SupplyCurrentLowerTime = 2.2;
+        talonConfig.CurrentLimits.SupplyCurrentLowerTime = 1.0;        
         talonConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        talonConfig.Slot0.withKS(0.0)
+            .withKV(0.0)
+            .withKA(0.0)
+            .withKP(15.0)
+            .withKI(0)
+            .withKD(0);
         roller.getConfigurator().apply(talonConfig);
+
+
     }
 
 
-    /** @param speed Target voltage for the roller motor */
-    public void setVolts(double speed){
-        roller.setControl(voltageRequest.withOutput(speed));
+
+    /** @param speed Stop */
+    public void stop() {
+        roller.setControl(coastRequest);
     }
 
-    /** @param speed Target percent output for the roller motor [-1.0, 1.0] */
-    public void set(double speed){
-        roller.setControl(dutyCycleRequest.withOutput(speed));
+    public void setRPM(int rpm) {
+        roller.setControl(velocityRequest.withVelocity(RPM.of(rpm)));
     }
-
+    
     /** @return Current velocity of the roller in RPM */
     public double rollerRPM(){
         return roller.getVelocity().getValue().baseUnitMagnitude();

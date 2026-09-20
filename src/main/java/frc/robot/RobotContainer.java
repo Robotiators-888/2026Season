@@ -168,7 +168,7 @@ public class RobotContainer {
                 );
 
                 roller.setDefaultCommand(new RunCommand(() -> {
-                        roller.set(0);
+                        roller.stop();
                 }, roller));
 
                 arm.setDefaultCommand(new RunCommand(() -> {
@@ -246,7 +246,7 @@ public class RobotContainer {
                         }
                 })).onFalse(new InstantCommand(()->{trenchAligning=false;}));
                 Driver1.rightBumper().whileTrue(Commands.run(() -> {
-                        roller.setVolts(Constants.Roller.kROLLER_MOTOR_VOLTAGE);
+                        roller.setRPM(1880);
                         arm.intakeArmTest();
                 }, roller, arm));
                 Driver1.leftTrigger().whileTrue(
@@ -259,7 +259,7 @@ public class RobotContainer {
                                         () -> -(Driver1.getLeftY()),
                                         () -> -(Driver1.getLeftX()) 
                                 ),
-                                new RunCommand(()->roller.setVolts(Constants.Roller.kROLLER_MOTOR_VOLTAGE), roller)
+                                new RunCommand(()->roller.setRPM(1880), roller)
                         )
                 );
                 Driver1.rightTrigger().whileTrue(
@@ -516,7 +516,7 @@ public class RobotContainer {
 
         private Command getCancellableShakeyCommand (BooleanSupplier condition) {
                 Command c = new ParallelCommandGroup(
-                        new RunCommand(()->roller.setVolts(Constants.Roller.kROLLER_MOTOR_VOLTAGE), roller),
+                        new RunCommand(()->roller.setRPM(1880), roller),
                         new SequentialCommandGroup(
                                 Commands.either(new RunCommand(()->arm.setArm(0), arm).withTimeout(.4), new RunCommand(()->arm.setArm(.15), arm).withTimeout(.4), condition),
                                 Commands.either(new RunCommand(()->arm.setArm(0), arm).withTimeout(.4), new RunCommand(()->arm.setArm(-.13), arm).withTimeout(.4), condition)
