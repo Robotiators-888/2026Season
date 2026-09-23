@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.RPM;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -14,6 +15,7 @@ import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.units.measure.Frequency;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -70,7 +72,8 @@ public class SUB_Shooter extends SubsystemBase {
         shooterConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         shooterConfig.CurrentLimits.StatorCurrentLimit = 100;
         shooterConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        shooterConfig.CurrentLimits.SupplyCurrentLimit = 40;
+        shooterConfig.CurrentLimits.SupplyCurrentLimit = 40; 
+        // TODO: Add ramp rates if needed
         // shooterConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
         // shooterConfig.CurrentLimits.SupplyCurrentLowerTime = 1.0;
         shooterConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
@@ -84,6 +87,8 @@ public class SUB_Shooter extends SubsystemBase {
             .withKP(Constants.Shooter.kSHOOTER_FLYWHEEL_kP)
             .withKI(Constants.Shooter.kSHOOTER_FLYWHEEL_kI)
             .withKD(Constants.Shooter.kSHOOTER_FLYWHEEL_kD);
+
+        topFlywheel.getTorqueCurrent().setUpdateFrequency(Hertz.of(100)); //TODO: Lower frequency if CAN Bus gets filled
 
         topFlywheel.getConfigurator().apply(shooterConfig);
         bottomFlywheel.getConfigurator().apply(shooterConfig);

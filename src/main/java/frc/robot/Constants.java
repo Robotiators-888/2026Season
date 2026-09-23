@@ -34,7 +34,7 @@ public final class Constants {
                 public static final double kSHOOTER_FLYWHEEL_RPM = 1000; // RPM
                 
                 // Feedforward constants (Manual tuning in progress)
-                public static final double kSHOOTER_FLYWHEEL_kS = 0.0; 
+                public static final double kSHOOTER_FLYWHEEL_kS = 18.0; 
                 public static final double kSHOOTER_FLYWHEEL_kV = 0.0; 
                 public static final double kSHOOTER_FLYWHEEL_kA = 0.0; 
                 
