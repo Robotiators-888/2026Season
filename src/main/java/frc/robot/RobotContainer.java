@@ -7,6 +7,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Volts;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,9 +37,11 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -245,7 +248,7 @@ public class RobotContainer {
                                         () -> -(Driver1.getLeftY()),
                                         () -> -(Driver1.getLeftX()) 
                                 ),
-                                new RunCommand(()->roller.setRPM(1880), roller)
+                                new RunCommand(()->roller.setRPM(1880/4), roller)
                         )
                 );
                 Driver1.leftStick().onTrue(new InstantCommand(() -> {
@@ -296,6 +299,7 @@ public class RobotContainer {
         }
 
         public void robotInit() {
+                RobotController.setBrownoutVoltage(5.8);
                 Pathfinding.setPathfinder(new LocalADStar());
                 powerDistribution.setSwitchableChannel(true);
         }
@@ -495,7 +499,7 @@ public class RobotContainer {
 
         private Command getCancellableShakeyCommand (BooleanSupplier condition) {
                 Command c = new ParallelCommandGroup(
-                        new RunCommand(()->roller.setRPM(1880), roller),
+                        new RunCommand(()->roller.setRPM(1880/4), roller),
                         new SequentialCommandGroup(
                                 Commands.either(new RunCommand(()->arm.setArm(0), arm).withTimeout(.4), new RunCommand(()->arm.setArm(.15), arm).withTimeout(.4), condition),
                                 Commands.either(new RunCommand(()->arm.setArm(0), arm).withTimeout(.4), new RunCommand(()->arm.setArm(-.13), arm).withTimeout(.4), condition)

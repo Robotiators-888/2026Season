@@ -143,7 +143,7 @@ public class CMD_AimBotAuto extends RunCommand {
         index.setVolts(Constants.Index.kINDEX_MOTOR_VOLTS);
     } else if (!isThetaErrorCorrect) {
         index.setVolts(0);
-        index.setMeteringRPM(-1000);
+        index.setMeteringRPM(-60);
     }
     
     // Drive request with PID rotation (no translation in static auto aim)

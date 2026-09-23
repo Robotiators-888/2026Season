@@ -47,7 +47,7 @@ public class SUB_Roller extends SubsystemBase {
         // Configure TalonFX motor controller with current limits and inversion
         TalonFXConfiguration talonConfig = new TalonFXConfiguration();
         talonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        talonConfig.CurrentLimits.SupplyCurrentLimit = 60;
+        talonConfig.CurrentLimits.SupplyCurrentLimit = 50;
         talonConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
         talonConfig.CurrentLimits.SupplyCurrentLowerTime = 1.0;        
         talonConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;

@@ -61,8 +61,10 @@ public class TunerConstants {
                 .withStatorCurrentLimit(Amps.of(90)) //Calculated Slip Current
                 .withStatorCurrentLimitEnable(true)
                 // Mr Gerstener said to change from 45 -> 40
-                .withSupplyCurrentLimit(Amps.of(40)) // Mr. Lange approved change from 50 -> 45 (consideration of 40 amp reccomendation)
+                .withSupplyCurrentLimit(Amps.of(55)) // Mr. Lange approved change from 50 -> 45 (consideration of 40 amp reccomendation)
                 .withSupplyCurrentLimitEnable(true)
+                .withSupplyCurrentLowerLimit(Amps.of(40))
+                .withSupplyCurrentLowerTime(0.1)
         );
     private static final TalonFXConfiguration steerInitialConfigs = new TalonFXConfiguration()
         .withCurrentLimits(
@@ -73,6 +75,8 @@ public class TunerConstants {
                 .withStatorCurrentLimitEnable(true)
                 .withSupplyCurrentLimit(Amps.of(35))
                 .withSupplyCurrentLimitEnable(true)
+                .withSupplyCurrentLowerLimit(Amps.of(25))
+                .withSupplyCurrentLowerTime(0.05)
         );
     private static final CANcoderConfiguration encoderInitialConfigs = new CANcoderConfiguration();
     // Configs for the Pigeon 2; leave this null to skip applying Pigeon 2 configs

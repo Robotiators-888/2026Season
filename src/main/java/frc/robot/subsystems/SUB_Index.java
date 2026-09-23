@@ -36,13 +36,13 @@ public class SUB_Index extends SubsystemBase {
         
         // Configure main indexer motor
         SparkMaxConfig indexConfig = new SparkMaxConfig();
-        indexConfig.smartCurrentLimit(60);
+        indexConfig.smartCurrentLimit(40,20);
         indexConfig.inverted(true);
         index.configure(indexConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
         
         // Configure high-speed metering wheel with aggressive PID
         SparkMaxConfig meteringConfig = new SparkMaxConfig();
-        meteringConfig.smartCurrentLimit(60);
+        meteringConfig.smartCurrentLimit(40,20);
         
         double kP = 0.00005; // Aggressive P for rapid speed ramp
         double kI = 0.0;
