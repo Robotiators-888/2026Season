@@ -13,7 +13,7 @@ import frc.robot.utils.Alert;
 public class SUB_Arm extends SubsystemBase {
     /** Subsystem state and configuration constants */
     public static boolean extended;
-    private PIDController controller = new PIDController(0.002, 0, 0);
+    private PIDController controller = new PIDController(0.001, 0, 0);
     private SparkMax arm;
     private SparkMax armFollower;
     private boolean stickUp = false;
@@ -43,25 +43,29 @@ public class SUB_Arm extends SubsystemBase {
         SparkMaxConfig config = new SparkMaxConfig();
         config.encoder.positionConversionFactor(360.0 / 23); // Converts rotations to degrees
         config.encoder.velocityConversionFactor((360.0 / 23) / 60.0); // Converts RPM to deg/sec
-        config.smartCurrentLimit(35); // Sets stall limit in amps
+        config.smartCurrentLimit(40,20); // Sets stall limit in amps
         config.inverted(true);
+        config.signals.appliedOutputPeriodMs(10);
         arm.configure(config, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
         
         // Configure follower motor
         SparkMaxConfig followerConfig = new SparkMaxConfig();
+        
+        followerConfig.smartCurrentLimit(40,20);
+        followerConfig.encoder.positionConversionFactor(360.0 / 23); // Converts rotations to degrees
+        followerConfig.encoder.velocityConversionFactor((360.0 / 23) / 60.0); // Converts RPM to deg/sec
         followerConfig.follow(arm, true); // Opposite direction compared to leader
-        followerConfig.smartCurrentLimit(35);
         armFollower.configure(followerConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
     }
 
     /** @return true if the arm has reached the top setpoint or is stuck up */
     public boolean isForwardPressed() {
-        return stickUp||Math.abs(arm.getEncoder().getPosition()-Constants.Arm.kARM_TOP_SETPOINT)<10;
+        return stickUp||Math.abs((arm.getEncoder().getPosition()+armFollower.getEncoder().getPosition())/2-Constants.Arm.kARM_TOP_SETPOINT)<10;
     }
 
     /** @return true if the arm has reached the bottom setpoint or is stuck down */
     public boolean isReversePressed() {
-        return stickDown||Math.abs(arm.getEncoder().getPosition()-Constants.Arm.kARM_BOTTOM_SETPOINT)<10;
+        return stickDown||Math.abs((arm.getEncoder().getPosition()+armFollower.getEncoder().getPosition())/2-Constants.Arm.kARM_BOTTOM_SETPOINT)<10;
     }
 
 
@@ -82,6 +86,8 @@ public class SUB_Arm extends SubsystemBase {
 
         SmartDashboard.putBoolean("Arm/Stick Up", stickUp);  
         SmartDashboard.putBoolean("Arm/Stick Down", stickDown);
+        SmartDashboard.putNumber("Arm/Arm RPM",arm.getEncoder().getVelocity());
+        SmartDashboard.putNumber("Arm/Arm Follower RPM",armFollower.getEncoder().getVelocity());
 
         // Decay the fault counter over time
         if (periodicCountFault > 0) {
@@ -109,10 +115,12 @@ public class SUB_Arm extends SubsystemBase {
                 stickUp = true;
                 stickDown = false;
                 arm.getEncoder().setPosition(Constants.Arm.kARM_TOP_SETPOINT);
+                armFollower.getEncoder().setPosition(Constants.Arm.kARM_TOP_SETPOINT);
             } else if (speed < 0) {
                 stickUp = false;
                 stickDown = true;
                 arm.getEncoder().setPosition(Constants.Arm.kARM_BOTTOM_SETPOINT);
+                armFollower.getEncoder().setPosition(Constants.Arm.kARM_BOTTOM_SETPOINT);
             }
             speed = 0;
         }
@@ -141,25 +149,25 @@ public class SUB_Arm extends SubsystemBase {
 
     /** Drives the arm to the bottom setpoint using PID */
     public void intakeArmDown() {
-        setArm(controller.calculate(arm.getEncoder().getPosition(), Constants.Arm.kARM_BOTTOM_SETPOINT)); 
+        setArm(2*controller.calculate((arm.getEncoder().getPosition()+armFollower.getEncoder().getPosition())/2, Constants.Arm.kARM_BOTTOM_SETPOINT-10)); 
     }
 
     /** Manual test drive for the arm */
     public void intakeArmTest() {
         // Mr. Lange said to make the PID based
-        arm.set(controller.calculate(arm.getEncoder().getPosition(), Constants.Arm.kARM_BOTTOM_SETPOINT)); // Mr. Lange said half intake being held down
+        setArm(2.5*controller.calculate((arm.getEncoder().getPosition()+armFollower.getEncoder().getPosition())/2, Constants.Arm.kARM_BOTTOM_SETPOINT-10)); // Mr. Lange said half intake being held down
     }
 
     /** Drives the arm to the top setpoint using PID */
     public void intakeArmUp() {
-        setArm(controller.calculate(arm.getEncoder().getPosition(), Constants.Arm.kARM_TOP_SETPOINT)); 
+        setArm(controller.calculate((arm.getEncoder().getPosition()+armFollower.getEncoder().getPosition())/2, Constants.Arm.kARM_TOP_SETPOINT)); 
     }
 
     public boolean isArmDownReached() {
-        return Math.abs(arm.getEncoder().getPosition() - Constants.Arm.kARM_BOTTOM_SETPOINT) < 3.0;
+        return Math.abs((arm.getEncoder().getPosition()+armFollower.getEncoder().getPosition())/2 - Constants.Arm.kARM_BOTTOM_SETPOINT) < 3.0;
     }
 
     public boolean isArmUpReached() {
-        return Math.abs(arm.getEncoder().getPosition() - Constants.Arm.kARM_TOP_SETPOINT) < 3.0;
+        return Math.abs((arm.getEncoder().getPosition()+armFollower.getEncoder().getPosition())/2 - Constants.Arm.kARM_TOP_SETPOINT) < 3.0;
     }
 }

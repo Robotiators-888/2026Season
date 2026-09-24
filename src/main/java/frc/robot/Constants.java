@@ -39,7 +39,7 @@ public final class Constants {
                 public static final double kSHOOTER_FLYWHEEL_kA = 0.0; 
                 
                 // PID constants
-                public static final double kSHOOTER_FLYWHEEL_kP = 4.0;
+                public static final double kSHOOTER_FLYWHEEL_kP = 7.0;
                 public static final double kSHOOTER_FLYWHEEL_kI = 0;
                 public static final double kSHOOTER_FLYWHEEL_kD = 0;
         }
