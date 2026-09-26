@@ -235,12 +235,12 @@ public class RobotContainer {
                         }
                 })).onFalse(new InstantCommand(()->{trenchAligning=false;}));
                 Driver1.leftTrigger().whileTrue(Commands.run(() -> {
-                        roller.setRPM(1880);
+                        roller.setRPM(3200);
                         arm.intakeArmTest();
                 }, roller, arm));
                 Driver1.rightTrigger().whileTrue(
                         new ParallelCommandGroup(
-                                new CMD_PredictiveAim(
+                                new CMD_AimBot (
                                         drivetrain, 
                                         photonVision, 
                                         shooter, 
@@ -248,7 +248,8 @@ public class RobotContainer {
                                         () -> -(Driver1.getLeftY()),
                                         () -> -(Driver1.getLeftX()) 
                                 ),
-                                new RunCommand(()->roller.setRPM(1880/4), roller)
+                                // new RunCommand(()->roller.setRPM(1880/4), roller),
+                                getCancellableShakeyCommand(() -> Driver2.leftStick().getAsBoolean())
                         )
                 );
                 Driver1.leftStick().onTrue(new InstantCommand(() -> {

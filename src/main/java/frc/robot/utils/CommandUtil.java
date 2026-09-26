@@ -51,7 +51,7 @@ public class CommandUtil {
                 NamedCommands.registerCommand("Intake",
                         new RunCommand(() -> {
                                 arm.intakeArmTest();
-                                roller.setRPM(1880);
+                                roller.setRPM(3200);
                         }
                                 
                         ,arm,roller)
@@ -78,11 +78,13 @@ public class CommandUtil {
                 ));
 
                 NamedCommands.registerCommand("ShootAutoAim", 
-                        new CMD_AimBotAuto(
+                        new ParallelCommandGroup(new CMD_AimBotAuto(
                                 drivetrain, 
                                 photonVision, 
                                 shooter, 
                                 index
+                        )
+                        // getShakeyCommand()
                         )
                 );
 
