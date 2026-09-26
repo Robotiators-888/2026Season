@@ -161,7 +161,7 @@ public class CMD_AimBot extends RunCommand {
       index.setMeteringRPM(Constants.Index.kINDEX_METERING_MOTOR_RPM);
       index.setVolts(Constants.Index.kINDEX_MOTOR_VOLTS);
     } else if (!isThetaErrorCorrect) {
-        index.setVolts(0);
+        index.setVolts(-4);
         index.setMeteringRPM(-60);
     }
     double xInput = xSlewRateLimiter.calculate(MathUtil.applyDeadband(translationXSupplier.getAsDouble(), Operator.kDriveDeadband));

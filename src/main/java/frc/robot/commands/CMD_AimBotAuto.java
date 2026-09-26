@@ -142,7 +142,7 @@ public class CMD_AimBotAuto extends RunCommand {
     if (isThetaErrorCorrect && isShooterReady) {
         index.setVolts(Constants.Index.kINDEX_MOTOR_VOLTS);
     } else if (!isThetaErrorCorrect) {
-        index.setVolts(0);
+        index.setVolts(-4);
         index.setMeteringRPM(-60);
     }
     
