@@ -127,7 +127,7 @@ public class SUB_Shooter extends SubsystemBase {
      */
     public void shootMeters(double meters) {
         double targetRPM = distanceToRPM.get(meters);
-        setRPM(targetRPM + 150);
+        setRPM(targetRPM + 225);
     }
 
     /** 
