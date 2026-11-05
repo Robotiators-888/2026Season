@@ -315,47 +315,16 @@ public class RobotContainer {
                 //                 new RunCommand(()->roller.setVolts(Constants.Roller.kROLLER_MOTOR_VOLTAGE), roller)
                 //         )
                 // );
-                Driver1.leftBumper().onTrue(Commands.runOnce(() -> {
-                        trenchAligning = true;
-                        Pose2d currentPose = drivetrain.getPose();
-                        
-                        Pose2d p1 = AllianceFlipUtil.apply(pathLeftToNeutral != null ? pathLeftToNeutral.getStartingHolonomicPose().orElse(new Pose2d()) : new Pose2d());
-                        Pose2d p2 = AllianceFlipUtil.apply(pathNeutralToLeft != null ? pathNeutralToLeft.getStartingHolonomicPose().orElse(new Pose2d()) : new Pose2d());
-                        Pose2d p3 = AllianceFlipUtil.apply(pathRightToNeutral != null ? pathRightToNeutral.getStartingHolonomicPose().orElse(new Pose2d()) : new Pose2d());
-                        Pose2d p4 = AllianceFlipUtil.apply(pathNeutralToRight != null ? pathNeutralToRight.getStartingHolonomicPose().orElse(new Pose2d()) : new Pose2d());
-
-                        double d1 = currentPose.getTranslation().getDistance(p1.getTranslation());
-                        double d2 = currentPose.getTranslation().getDistance(p2.getTranslation());
-                        double d3 = currentPose.getTranslation().getDistance(p3.getTranslation());
-                        double d4 = currentPose.getTranslation().getDistance(p4.getTranslation());
-
-                        double minD = Math.min(Math.min(d1, d2), Math.min(d3, d4));
-                        PathPlannerPath selectedPath = pathNeutralToRight;
-
-                        if (minD == d1) {
-                                selectedPath = pathLeftToNeutral;
-                        } else if (minD == d2) {
-                                selectedPath = pathNeutralToLeft;
-                        } else if (minD == d3) {
-                                selectedPath = pathRightToNeutral;
-                        }
-
-                        try {
-                                PathConstraints constraints = new PathConstraints(4.0, 4.0,
-                                                Units.degreesToRadians(360), Units.degreesToRadians(540));
-                                trenchAlign = AutoBuilder.pathfindThenFollowPath(selectedPath, constraints).until(()->{
-                                        return !trenchAligning;
-                                });
-                                trenchAlign.schedule();
-                        } catch (Exception e) {
-                                Alert.registerError("Failed to retrieve trench command: " + e.getMessage());
-                        }
-                })).onFalse(new InstantCommand(()->{trenchAligning=false;}));
-                Driver1.rightBumper().whileTrue(Commands.run(() -> {
+                Driver1.leftTrigger().whileTrue(Commands.run(() -> {
                         roller.setVolts(Constants.Roller.kROLLER_MOTOR_VOLTAGE);
                         arm.intakeArmDownRoller();
                 }, roller, arm).repeatedly());
-                Driver1.rightTrigger().whileTrue(getShakeyCommand());
+                //Driver1.rightTrigger().whileTrue(getShakeyCommand());
+                Driver1.rightTrigger().whileTrue(new RunCommand(() ->{
+                        shooter.setRPM(2500);
+                        index.setVolts(Constants.Index.kINDEX_MOTOR_VOLTS);
+                        index.setMeteringRPM(Constants.Index.kINDEX_METERING_MOTOR_RPM);
+                        }, shooter, index));
                 // Driver1.rightTrigger().whileTrue(
                 //         new ParallelCommandGroup(
                 //                 new CMD_AimBotSpecialLock(
@@ -379,23 +348,22 @@ public class RobotContainer {
                 // =========================================================
                 // DRIVER 2
                 // =========================================================
-                Driver2.leftTrigger().whileTrue(new RunCommand(() -> shooter.setRPM(targetRPM), shooter));
-                Driver2.rightTrigger().whileTrue(new RunCommand(() -> {
-                        index.setVolts(Constants.Index.kINDEX_MOTOR_VOLTS);
-                        index.setMeteringRPM(Constants.Index.kINDEX_METERING_MOTOR_RPM);
-                }, index));
-                Driver2.y().onTrue(new InstantCommand(() -> targetRPM += 25));
-                Driver2.a().onTrue(new InstantCommand(() -> targetRPM -= 25));
-                Driver2.leftBumper().whileTrue(new RunCommand(() -> {
-                        index.setVolts(-Constants.Index.kINDEX_MOTOR_VOLTS);
-                        index.setMeteringVolts(-Constants.Index.kINDEX_METERING_MOTOR_VOLTS);
-                        shooter.setVolts(-2.5);
-                }, index, shooter));
+                // Driver2.rightTrigger().whileTrue(new RunCommand(() -> {
+                //         index.setVolts(Constants.Index.kINDEX_MOTOR_VOLTS);
+                //         index.setMeteringRPM(Constants.Index.kINDEX_METERING_MOTOR_RPM);
+                // }, index));
+                // Driver2.y().onTrue(new InstantCommand(() -> targetRPM += 25));
+                // Driver2.a().onTrue(new InstantCommand(() -> targetRPM -= 25));
+                // Driver2.leftBumper().whileTrue(new RunCommand(() -> {
+                //         index.setVolts(-Constants.Index.kINDEX_MOTOR_VOLTS);
+                //         index.setMeteringVolts(-Constants.Index.kINDEX_METERING_MOTOR_VOLTS);
+                //         shooter.setVolts(-2.5);
+                // }, index, shooter));
                 Driver2.povDown().whileTrue(Commands.run(()->arm.intakeArmDownTeleop(),arm));
                 Driver2.povUp().onTrue(Commands.run(()->arm.intakeArmUp(),arm));
-                Driver2.rightBumper().whileTrue(new RunCommand(() -> {
-                        arm.setArm(MathUtil.applyDeadband(Driver2.getLeftY(), Operator.kDriveDeadband) * Constants.Arm.kARM_MOTOR_SPEED);
-                }, arm));
+                // Driver2.rightBumper().whileTrue(new RunCommand(() -> {
+                //         arm.setArm(MathUtil.applyDeadband(Driver2.getLeftY(), Operator.kDriveDeadband) * Constants.Arm.kARM_MOTOR_SPEED);
+                // }, arm));
 
                 // Driver2.b().whileTrue(
                 //         new CMD_Shuttle(drivetrain, photonVision, index, shooter,
