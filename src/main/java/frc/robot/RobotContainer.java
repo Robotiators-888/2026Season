@@ -240,7 +240,7 @@ public class RobotContainer {
                 }, roller, arm));
                 Driver1.rightTrigger().whileTrue(
                         new ParallelCommandGroup(
-                                new CMD_AimBot (
+                                new CMD_PredictiveAim(
                                         drivetrain, 
                                         photonVision, 
                                         shooter, 
