@@ -22,14 +22,14 @@ public class SUB_PhotonVision extends SubsystemBase {
   private static SUB_PhotonVision INSTANCE = null;
 
   /** Hardware cameras and targeting state */
-  private final PhotonCamera cam1 = new PhotonCamera(PhotonVision.kCamName1);
-  private final PhotonCamera cam2 = new PhotonCamera(PhotonVision.kCam2Name);
+  // private final PhotonCamera cam1 = new PhotonCamera(PhotonVision.kCamName1);
+  // private final PhotonCamera cam2 = new PhotonCamera(PhotonVision.kCam2Name);
   private final PhotonCamera cam3 = new PhotonCamera(PhotonVision.kCam3Name);
-  private PhotonTrackedTarget cam1BestTarget;
-  private PhotonTrackedTarget cam2BestTarget;
+  // private PhotonTrackedTarget cam1BestTarget;
+  // private PhotonTrackedTarget cam2BestTarget;
   private PhotonTrackedTarget cam3BestTarget;
-  private final PhotonPoseEstimator poseEstimator1;
-  private final PhotonPoseEstimator poseEstimator2;
+  // private final PhotonPoseEstimator poseEstimator1;
+  // private final PhotonPoseEstimator poseEstimator2;
   private final PhotonPoseEstimator poseEstimator3;
   public AprilTagFieldLayout at_field;
 
@@ -46,56 +46,56 @@ public class SUB_PhotonVision extends SubsystemBase {
     at_field =  AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
 
     // Initialize cameras and pose estimators with MULTI_TAG_PNP strategy
-    cam1.setPipelineIndex(0);
-    cam2.setPipelineIndex(0);
+    // cam1.setPipelineIndex(0);
+    // cam2.setPipelineIndex(0);
     cam3.setPipelineIndex(0);
 
-    poseEstimator1 = new PhotonPoseEstimator(at_field, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-        PhotonVision.kRobotToCamera1);
-    poseEstimator2 = new PhotonPoseEstimator(at_field, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-         PhotonVision.kRobotToCamera2);
+    // poseEstimator1 = new PhotonPoseEstimator(at_field, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+    //     PhotonVision.kRobotToCamera1);
+    // poseEstimator2 = new PhotonPoseEstimator(at_field, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+    //      PhotonVision.kRobotToCamera2);
     poseEstimator3 = new PhotonPoseEstimator(at_field, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
          PhotonVision.kRobotToCamera3);
 
     // Set fallback strategy for single-tag scenarios
-    poseEstimator1.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
-    poseEstimator2.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+    // poseEstimator1.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+    // poseEstimator2.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
     poseEstimator3.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
   }
 
   /** @return Latest estimated robot pose from camera 1 */
-  public Optional<EstimatedRobotPose> getCam1Pose() {
-    List<PhotonPipelineResult> results1 = cam1.getAllUnreadResults();
+  // public Optional<EstimatedRobotPose> getCam1Pose() {
+  //   List<PhotonPipelineResult> results1 = cam1.getAllUnreadResults();
 
-    Optional<EstimatedRobotPose> finalPose1 = Optional.empty();
-    // Process results in reverse order to find the latest valid result
-    java.util.ListIterator<PhotonPipelineResult> iterator = results1.listIterator(results1.size());
-    while (iterator.hasPrevious()) {
-      PhotonPipelineResult result = iterator.previous();
-      if (result.hasTargets()) {
-        cam1BestTarget = result.getBestTarget();
-        finalPose1 = poseEstimator1.update(result);
-        break; 
-      }
-    }
-    return finalPose1;
-  }
+  //   Optional<EstimatedRobotPose> finalPose1 = Optional.empty();
+  //   // Process results in reverse order to find the latest valid result
+  //   java.util.ListIterator<PhotonPipelineResult> iterator = results1.listIterator(results1.size());
+  //   while (iterator.hasPrevious()) {
+  //     PhotonPipelineResult result = iterator.previous();
+  //     if (result.hasTargets()) {
+  //       cam1BestTarget = result.getBestTarget();
+  //       finalPose1 = poseEstimator1.update(result);
+  //       break; 
+  //     }
+  //   }
+  //   return finalPose1;
+  // }
 
-  /** @return Latest estimated robot pose from camera 2 */
-  public Optional<EstimatedRobotPose> getCam2Pose() {
-    List<PhotonPipelineResult> results2 = cam2.getAllUnreadResults();
-    Optional<EstimatedRobotPose> finalPose2 = Optional.empty();
-    java.util.ListIterator<PhotonPipelineResult> iterator = results2.listIterator(results2.size());
-    while (iterator.hasPrevious()) {
-      PhotonPipelineResult result = iterator.previous();
-      if (result.hasTargets()) {
-        cam2BestTarget = result.getBestTarget();
-        finalPose2 = poseEstimator2.update(result);
-        break; 
-      }
-    }
-    return finalPose2;
-  }
+  // /** @return Latest estimated robot pose from camera 2 */
+  // public Optional<EstimatedRobotPose> getCam2Pose() {
+  //   List<PhotonPipelineResult> results2 = cam2.getAllUnreadResults();
+  //   Optional<EstimatedRobotPose> finalPose2 = Optional.empty();
+  //   java.util.ListIterator<PhotonPipelineResult> iterator = results2.listIterator(results2.size());
+  //   while (iterator.hasPrevious()) {
+  //     PhotonPipelineResult result = iterator.previous();
+  //     if (result.hasTargets()) {
+  //       cam2BestTarget = result.getBestTarget();
+  //       finalPose2 = poseEstimator2.update(result);
+  //       break; 
+  //     }
+  //   }
+  //   return finalPose2;
+  // }
 
   /** @return Latest estimated robot pose from camera 3 */
   public Optional<EstimatedRobotPose> getCam3Pose() {
@@ -113,13 +113,13 @@ public class SUB_PhotonVision extends SubsystemBase {
     return finalPose3;
   }
 
-  public PhotonTrackedTarget getCam1BestTarget() {
-    return cam1BestTarget;
-  }
+  // public PhotonTrackedTarget getCam1BestTarget() {
+  //   return cam1BestTarget;
+  // }
 
-  public PhotonTrackedTarget getCam2BestTarget() {
-    return cam2BestTarget;
-  }
+  // public PhotonTrackedTarget getCam2BestTarget() {
+  //   return cam2BestTarget;
+  // }
   public PhotonTrackedTarget getCam3BestTarget() {
     return cam3BestTarget;
   }
@@ -144,12 +144,12 @@ public class SUB_PhotonVision extends SubsystemBase {
   @Override
   public void periodic() {
     // Check connection status and report errors
-   if (!cam1.isConnected()) {
-      Alert.registerError("PhotonVision Camera 1 Disconnected");
-    }
-    if (!cam2.isConnected()) {
-      Alert.registerError("PhotonVision Camera 2 Disconnected");
-    }
+  //  if (!cam1.isConnected()) {
+  //     Alert.registerError("PhotonVision Camera 1 Disconnected");
+  //   }
+  //   if (!cam2.isConnected()) {
+  //     Alert.registerError("PhotonVision Camera 2 Disconnected");
+  //   }
     if (!cam3.isConnected()) {
       Alert.registerError("PhotonVision Camera 3 Disconnected");
     }
